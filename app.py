@@ -2,7 +2,7 @@ from scapy.all import sniff
 from scapy.layers.inet import TCP, IP
  
 # Dirección IP de tu máquina
-MY_IP = "192.168.1.7"
+MY_IP = "192.168.0.109"
  
 def detect_port_scan(packet):
     if packet.haslayer(TCP) and packet.haslayer(IP):
