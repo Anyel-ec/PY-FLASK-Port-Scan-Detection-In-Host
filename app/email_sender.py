@@ -3,22 +3,21 @@ import smtplib
 from email.message import EmailMessage
 import os
 from dotenv import load_dotenv
+from .whatsapp_sender import send_whatsapp
 
 # Carga las variables de entorno desde el archivo .env
 load_dotenv()
 
 # Dirección de correo electrónico del remitente
-email_sender = os.getenv('SENDER')
+email_sender = os.getenv('SENDER_EMAIL')
 # Contraseña del remitente obtenida de las variables de entorno
-password = os.getenv('PASSWORD')
+password = os.getenv('EMAIL_PASSWORD')
 # Dirección de correo electrónico del destinatario
-email_reciver = "appatino@espe.edu.ec"
+email_receiver = os.getenv('RECEIVER_EMAIL')
 
 # Función para enviar un correo electrónico
 def send_email(ip_src):
-    # Asunto del correo electrónico
     subject = "⚠️ Alerta de Seguridad: Escaneo de Puertos Detectado ⚠️"
-    # Cuerpo del correo electrónico en formato HTML
     body = f"""
     <html>
         <body style="font-family: Arial, sans-serif; text-align: center;">
@@ -32,27 +31,17 @@ def send_email(ip_src):
     </html>
     """
 
-    # Crea un objeto EmailMessage para configurar los detalles del correo
     em = EmailMessage()
-    # Establece el remitente del correo
     em["From"] = email_sender
-    # Establece el destinatario del correo
-    em["To"] = email_reciver
-    # Establece el asunto del correo
+    em["To"] = email_receiver
     em["Subject"] = subject
-    # Establece el cuerpo del correo en formato HTML
     em.set_content(body, subtype="html")
 
-    # Intenta enviar el correo y maneja posibles excepciones
     try:
-        # Conecta con el servidor SMTP de Gmail
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
-            # Inicia sesión en el servidor SMTP
             smtp.login(email_sender, password)
-            # Envía el correo
             smtp.send_message(em)
             print("Correo enviado exitosamente")
-
     except smtplib.SMTPAuthenticationError:
         print("Error de autenticación: Verifique su usuario y contraseña.")
     except smtplib.SMTPRecipientsRefused:
@@ -61,3 +50,6 @@ def send_email(ip_src):
         print(f"Error al enviar el correo: {e}")
     except Exception as e:
         print(f"Ocurrió un error inesperado: {e}")
+
+    # Enviar mensaje de WhatsApp
+    send_whatsapp(ip_src)

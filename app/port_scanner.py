@@ -1,15 +1,13 @@
+# app/port_scanner.py
 from scapy.all import sniff
 from scapy.layers.inet import TCP, IP
 import threading
 from .ip_utils import get_ip
 from .email_sender import send_email
-
-# Para la barra de carga
 import sys
-import time
-
 # Dirección IP de tu máquina
 MY_IP = get_ip()
+print(f"Tu dirección IP es: {MY_IP}")
 if not MY_IP:
     print("No se pudo obtener la dirección IP. Terminando el programa.")
     exit(1)
@@ -39,18 +37,20 @@ def detect_port_scan(packet):
                         scan_detected_count += 1
                         update_progress(scan_detected_count)
 
-# Función para actualizar la barra de carga
+# Función para actualizar la barra de carga (opcional)
 def update_progress(count):
-    sys.stdout.write(f"\rDetección en progreso... Paquetes de escaneo detectados: {count}")
-    sys.stdout.flush()
+    print(f"Detección en progreso... Paquetes de escaneo detectados: {count}")
 
 # Función principal para iniciar la detección de escaneo de puertos
 def start_port_scanner_detection():
     print("Iniciando la detección de escaneo de puertos...")
+    # Añadir log de estado para verificar inicio
+    sys.stdout.flush()  # Asegura que se imprime el mensaje inmediatamente
+
     # Captura paquetes TCP entrantes hacia tu IP
     sniff(filter=f"tcp and dst host {MY_IP}", prn=detect_port_scan, store=0)
 
     # Al terminar la detección
     print("\nDetección de escaneo de puertos finalizada.")
-
-    # Puedes añadir aquí cualquier otra lógica que desees ejecutar al finalizar la detección
+    # Añadir log de estado para verificar fin
+    sys.stdout.flush()  # Asegura que se imprime el mensaje inmediatamente
