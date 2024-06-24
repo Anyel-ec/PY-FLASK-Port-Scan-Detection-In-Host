@@ -21,9 +21,9 @@ def get_ip():
 load_dotenv()
 
 # Dirección de correo electrónico del remitente
-email_sender = os.getenv('SENDER')
+email_sender = os.getenv('SENDER_EMAIL')
 # Contraseña del remitente obtenida de las variables de entorno
-password = os.getenv('PASSWORD')
+password = os.getenv('EMAIL_PASSWORD')
 # Dirección de correo electrónico del destinatario
 email_reciver = "appatino@espe.edu.ec"
 

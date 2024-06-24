@@ -4,6 +4,7 @@ from scapy.layers.inet import TCP, IP
 import threading
 from .ip_utils import get_ip
 from .email_sender import send_email
+import sys
 
 # Dirección IP de tu máquina
 MY_IP = get_ip()
@@ -44,8 +45,10 @@ def update_progress(count):
 # Función principal para iniciar la detección de escaneo de puertos
 def start_port_scanner_detection():
     print("Iniciando la detección de escaneo de puertos...")
+    sys.stdout.flush()  # Asegura que se imprime el mensaje inmediatamente
+
     # Captura paquetes TCP entrantes hacia tu IP
     sniff(filter=f"tcp and dst host {MY_IP}", prn=detect_port_scan, store=0)
 
-    # Al terminar la detección
     print("\nDetección de escaneo de puertos finalizada.")
+    sys.stdout.flush()  # Asegura que se imprime el mensaje inmediatamente
