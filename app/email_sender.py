@@ -1,23 +1,30 @@
-# app/email_sender.py
 import smtplib
 from email.message import EmailMessage
 import os
 from dotenv import load_dotenv
-from .whatsapp_sender import send_whatsapp
+from twilio.rest import Client
 
 # Carga las variables de entorno desde el archivo .env
 load_dotenv()
 
 # Dirección de correo electrónico del remitente
-email_sender = os.getenv('SENDER_EMAIL')
+email_sender = os.getenv('SENDER')
 # Contraseña del remitente obtenida de las variables de entorno
-password = os.getenv('EMAIL_PASSWORD')
+password = os.getenv('PASSWORD')
 # Dirección de correo electrónico del destinatario
-email_receiver = os.getenv('RECEIVER_EMAIL')
+email_reciver = "appatino@espe.edu.ec"
 
-# Función para enviar un correo electrónico
-def send_email(ip_src):
+# Variables de entorno para Twilio
+account_sid = os.getenv('account_sid')
+auth_token = os.getenv('auth_token')
+from_whatsapp_number = os.getenv('from_whatsapp_number')
+to_whatsapp_number = os.getenv('to_whatsapp_number')
+
+# Función para enviar un correo electrónico y un mensaje de WhatsApp
+def send_email_and_whatsapp(ip_src):
+    # Asunto del correo electrónico
     subject = "⚠️ Alerta de Seguridad: Escaneo de Puertos Detectado ⚠️"
+    # Cuerpo del correo electrónico en formato HTML
     body = f"""
     <html>
         <body style="font-family: Arial, sans-serif; text-align: center;">
@@ -31,13 +38,15 @@ def send_email(ip_src):
     </html>
     """
 
+    # Crea un objeto EmailMessage para configurar los detalles del correo
     em = EmailMessage()
     em["From"] = email_sender
-    em["To"] = email_receiver
+    em["To"] = email_reciver
     em["Subject"] = subject
     em.set_content(body, subtype="html")
 
     try:
+        # Conecta con el servidor SMTP de Gmail
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
             smtp.login(email_sender, password)
             smtp.send_message(em)
@@ -52,4 +61,13 @@ def send_email(ip_src):
         print(f"Ocurrió un error inesperado: {e}")
 
     # Enviar mensaje de WhatsApp
-    send_whatsapp(ip_src)
+    client = Client(account_sid, auth_token)
+    try:
+        message = client.messages.create(
+            body=f"⚠️ Alerta de Seguridad: Escaneo de Puertos Detectado desde IP: {ip_src} ⚠️",
+            from_=from_whatsapp_number,
+            to=to_whatsapp_number
+        )
+        print(f"Mensaje de WhatsApp enviado con SID: {message.sid}")
+    except Exception as e:
+        print(f"Ocurrió un error al enviar el mensaje de WhatsApp: {e}")
